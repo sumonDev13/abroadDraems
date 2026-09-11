@@ -5,12 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase, type Country, type VisaProgram } from '@/lib/supabase';
 
-const categoryLabels: Record<string, string> = {
-  student_masters: 'Student Visa (Masters)',
-  skilled_worker: 'Skilled Worker Visa',
-  job_seeker: 'Job Seeker Visa',
-};
-
 type ProgramWithCountry = VisaProgram & { countries: Country };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +34,6 @@ const comparisonFields: ComparisonField[] = [
 function CompareContent() {
   const searchParams = useSearchParams();
   const initialIds = searchParams.get('ids')?.split(',') || [];
-  const [selectedCategory, setSelectedCategory] = useState<string>('student_masters');
   const [selectedIds, setSelectedIds] = useState<string[]>(initialIds);
   const [availablePrograms, setAvailablePrograms] = useState<ProgramWithCountry[]>([]);
   const [selectedPrograms, setSelectedPrograms] = useState<ProgramWithCountry[]>([]);
@@ -52,7 +45,7 @@ function CompareContent() {
       const { data, error } = await supabase
         .from('visa_programs')
         .select('*, countries(*)')
-        .eq('category', selectedCategory);
+        .eq('category', 'student_masters');
 
       if (error) {
         console.error('Error fetching programs:', error);
@@ -65,7 +58,7 @@ function CompareContent() {
     }
 
     fetchPrograms();
-  }, [selectedCategory]);
+  }, []);
 
   useEffect(() => {
     async function fetchSelected() {
@@ -98,27 +91,8 @@ function CompareContent() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-slate-900 mb-6">Compare Countries</h1>
-
-      {/* Category Selection */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        {Object.entries(categoryLabels).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => {
-              setSelectedCategory(key);
-              setSelectedIds([]);
-            }}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
-              selectedCategory === key
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <h1 className="text-3xl font-bold text-slate-900 mb-2">Compare Countries</h1>
+      <p className="text-slate-600 mb-6">Master&apos;s Degree Programs</p>
 
       {/* Country Selection */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
@@ -186,7 +160,6 @@ function CompareContent() {
                   >
                     <td className="py-4 px-6 font-medium text-slate-700">{field.label}</td>
                     {selectedPrograms.map((program) => {
-                      // Handle special computed fields
                       if (field.key === 'tuition_fee_range') {
                         const displayValue = field.format
                           ? field.format(null, program)

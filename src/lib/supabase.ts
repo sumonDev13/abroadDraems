@@ -17,6 +17,7 @@ export type VisaProgram = {
   id: string;
   country_id: string;
   category: string;
+  subcategory: string;
   spouse_can_accompany: boolean;
   spouse_join_delay: string;
   spouse_work_rights: string;

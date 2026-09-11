@@ -3,9 +3,7 @@ import Link from 'next/link';
 import { supabase, type Country, type VisaProgram } from '@/lib/supabase';
 
 const categoryLabels: Record<string, string> = {
-  student_masters: 'Student Visa (Masters)',
-  skilled_worker: 'Skilled Worker Visa',
-  job_seeker: 'Job Seeker Visa',
+  student_masters: "Master's Degree - Student Visa",
 };
 
 type ProgramWithCountry = VisaProgram & { countries: Country };

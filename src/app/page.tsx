@@ -2,25 +2,22 @@ import Link from 'next/link';
 
 const categories = [
   {
-    id: 'student_masters',
-    title: 'Student Visa (Masters)',
-    description: 'Compare masters programs, tuition fees, work permits, and post-study opportunities',
+    id: 'masters',
+    title: "Master's Degree",
+    description: "Compare masters programs, tuition fees, work permits, and post-study opportunities",
     icon: '🎓',
     color: 'from-blue-500 to-indigo-600',
+    href: '/explore?subcategory=masters',
+    available: true,
   },
   {
-    id: 'skilled_worker',
-    title: 'Skilled Worker Visa',
-    description: 'Find countries that value your skills with fast-track PR pathways',
-    icon: '💼',
-    color: 'from-emerald-500 to-teal-600',
-  },
-  {
-    id: 'job_seeker',
-    title: 'Job Seeker Visa',
-    description: 'Explore countries where you can search for employment opportunities',
-    icon: '🔍',
-    color: 'from-orange-500 to-amber-600',
+    id: 'bachelor',
+    title: "Bachelor's Degree",
+    description: "Explore bachelor programs across top study destinations",
+    icon: '📚',
+    color: 'from-purple-500 to-pink-600',
+    href: '/explore?subcategory=bachelor',
+    available: false,
   },
 ];
 
@@ -33,7 +30,7 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-slate-900">AbroadDreams</h1>
-              <p className="text-slate-600 mt-1">Find your perfect country for study or work</p>
+              <p className="text-slate-600 mt-1">Find your perfect country for study</p>
             </div>
             <nav className="flex gap-4">
               <Link href="/compare" className="text-slate-600 hover:text-slate-900 font-medium">
@@ -51,33 +48,46 @@ export default function Home() {
             Which country suits you best?
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Compare visa requirements, work permits, PR pathways, and living costs across top destinations
+            Compare visa requirements, work permits, PR pathways, and living costs across top study destinations
           </p>
         </div>
 
         {/* Category Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/explore?category=${category.id}`}
-              className="group relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100"
+              href={category.available ? category.href : '#'}
+              className={`group relative bg-white rounded-2xl shadow-lg transition-all duration-300 overflow-hidden border border-slate-100 ${
+                category.available
+                  ? 'hover:shadow-xl cursor-pointer'
+                  : 'opacity-75 cursor-not-allowed'
+              }`}
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
               <div className="relative p-8">
-                <span className="text-5xl mb-4 block">{category.icon}</span>
+                <div className="flex items-start justify-between">
+                  <span className="text-5xl mb-4 block">{category.icon}</span>
+                  {!category.available && (
+                    <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-medium">
+                      Coming Soon
+                    </span>
+                  )}
+                </div>
                 <h3 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-white transition-colors">
                   {category.title}
                 </h3>
                 <p className="text-slate-600 group-hover:text-white/90 transition-colors">
                   {category.description}
                 </p>
-                <div className="mt-6 flex items-center text-sm font-semibold text-slate-700 group-hover:text-white transition-colors">
-                  Explore countries
-                  <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
+                {category.available && (
+                  <div className="mt-6 flex items-center text-sm font-semibold text-slate-700 group-hover:text-white transition-colors">
+                    Explore countries
+                    <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                )}
               </div>
             </Link>
           ))}
@@ -92,12 +102,12 @@ export default function Home() {
               <div className="text-slate-600">Countries</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-emerald-600">3</div>
-              <div className="text-slate-600">Visa Categories</div>
+              <div className="text-3xl font-bold text-emerald-600">15+</div>
+              <div className="text-slate-600">Data Points</div>
             </div>
             <div>
-              <div className="text-3xl font-bold text-orange-600">15+</div>
-              <div className="text-slate-600">Data Points</div>
+              <div className="text-3xl font-bold text-orange-600">Free</div>
+              <div className="text-slate-600">Tuition Options</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-purple-600">100%</div>
