@@ -208,18 +208,6 @@ function CompareContent() {
 export default function ComparePage() {
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold text-slate-900">
-              AbroadDreams
-            </Link>
-            <Link href="/explore" className="text-slate-600 hover:text-slate-900 font-medium">
-              ← Back to Explore
-            </Link>
-          </div>
-        </div>
-      </header>
       <Suspense fallback={<div className="max-w-7xl mx-auto px-4 py-12 text-center text-slate-500">Loading...</div>}>
         <CompareContent />
       </Suspense>
