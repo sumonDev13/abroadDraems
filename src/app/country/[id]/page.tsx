@@ -169,14 +169,14 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
                 href={typedProgram.source_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                className="text-emerald-600 hover:text-emerald-700 text-sm font-medium"
               >
                 View Official Source →
               </a>
             </div>
             <Link
               href={`/explore?category=${typedProgram.category}`}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+              className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm"
             >
               Compare with Other Countries
             </Link>

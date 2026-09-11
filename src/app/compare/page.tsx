@@ -116,7 +116,7 @@ function CompareContent() {
                   disabled={!isSelected && selectedIds.length >= 4}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                     isSelected
-                      ? 'bg-blue-600 text-white ring-2 ring-blue-300'
+                      ? 'bg-emerald-600 text-white ring-2 ring-emerald-300'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed'
                   }`}
                 >

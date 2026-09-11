@@ -111,7 +111,7 @@ function ExploreContent() {
             disabled={key === 'bachelor'}
             className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-colors ${
               selectedSub === key
-                ? 'bg-blue-600 text-white'
+                ? 'bg-emerald-600 text-white'
                 : key === 'bachelor'
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
@@ -138,7 +138,7 @@ function ExploreContent() {
           <div className="flex items-center justify-center gap-3">
             <button
               onClick={() => setSelectedSub('masters')}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              className="bg-emerald-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
             >
               Browse Master's Programs
             </button>
@@ -162,7 +162,7 @@ function ExploreContent() {
                   placeholder="Country or keyword..."
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 />
               </div>
 
@@ -172,7 +172,7 @@ function ExploreContent() {
                 <select
                   value={filters.region}
                   onChange={(e) => setFilters({ ...filters, region: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="">All Regions</option>
                   <option value="Europe">Europe</option>
@@ -194,7 +194,7 @@ function ExploreContent() {
                       spouseCanAccompany: e.target.value === '' ? null : e.target.value === 'true',
                     })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="">Any</option>
                   <option value="true">Yes</option>
@@ -215,7 +215,7 @@ function ExploreContent() {
                       prPathway: e.target.value === '' ? null : e.target.value === 'true',
                     })
                   }
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="">Any</option>
                   <option value="true">Yes</option>
@@ -229,7 +229,7 @@ function ExploreContent() {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="name">Country Name</option>
                   <option value="tuition-low">Tuition: Low to High</option>
@@ -278,7 +278,7 @@ function ExploreContent() {
                     <div
                       key={program.id}
                       className={`bg-white rounded-xl shadow-sm border-2 p-5 transition-all hover:shadow-md ${
-                        isComparing ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-200'
+                        isComparing ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-slate-200'
                       }`}
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -293,7 +293,7 @@ function ExploreContent() {
                           onClick={() => toggleCompare(program.id)}
                           className={`p-2 rounded-lg transition-colors ${
                             isComparing
-                              ? 'bg-blue-100 text-blue-600'
+                              ? 'bg-emerald-100 text-emerald-600'
                               : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                           }`}
                           title="Add to compare"
@@ -363,7 +363,7 @@ function ExploreContent() {
                       search: '',
                     })
                   }
-                  className="mt-4 text-blue-600 hover:text-blue-700 font-medium"
+                  className="mt-4 text-emerald-600 hover:text-emerald-700 font-medium"
                 >
                   Reset filters
                 </button>

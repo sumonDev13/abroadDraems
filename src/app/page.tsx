@@ -178,7 +178,7 @@ export default function Home() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="bg-white rounded-2xl p-6 border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all duration-300 group"
+                className="bg-white rounded-2xl p-6 border border-slate-100 hover:shadow-xl hover:border-emerald-100 transition-all duration-300 group"
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   {feature.icon}
