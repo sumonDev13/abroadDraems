@@ -1,0 +1,58 @@
+[
+  {
+    "id": "germany",
+    "name": "Germany",
+    "flag": "🇩🇪",
+    "currency": "EUR",
+    "region": "Europe"
+  },
+  {
+    "id": "canada",
+    "name": "Canada",
+    "flag": "🇨🇦",
+    "currency": "CAD",
+    "region": "North America"
+  },
+  {
+    "id": "australia",
+    "name": "Australia",
+    "flag": "🇦🇺",
+    "currency": "AUD",
+    "region": "Oceania"
+  },
+  {
+    "id": "uk",
+    "name": "United Kingdom",
+    "flag": "🇬🇧",
+    "currency": "GBP",
+    "region": "Europe"
+  },
+  {
+    "id": "ireland",
+    "name": "Ireland",
+    "flag": "🇮🇪",
+    "currency": "EUR",
+    "region": "Europe"
+  },
+  {
+    "id": "newzealand",
+    "name": "New Zealand",
+    "flag": "🇳🇿",
+    "currency": "NZD",
+    "region": "Oceania"
+  },
+  {
+    "id": "netherlands",
+    "name": "Netherlands",
+    "flag": "🇳🇱",
+    "currency": "EUR",
+    "region": "Europe"
+  },
+  {
+    "id": "sweden",
+    "name": "Sweden",
+    "flag": "🇸🇪",
+    "currency": "SEK",
+    "region": "Europe"
+  }
+]
