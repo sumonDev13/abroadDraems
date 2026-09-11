@@ -26,19 +26,19 @@ const features = [
 ];
 
 const universities = [
-  { name: 'Technical University of Munich', country: 'Germany', flag: '🇩🇪', color: 'from-blue-500 to-blue-700' },
+  { name: 'Technical University of Munich', country: 'Germany', flag: '🇩🇪', color: 'from-emerald-500 to-emerald-700' },
   { name: 'University of Toronto', country: 'Canada', flag: '🇨🇦', color: 'from-red-500 to-red-700' },
-  { name: 'University of Melbourne', country: 'Australia', flag: '🇦🇺', color: 'from-yellow-500 to-yellow-700' },
+  { name: 'University of Melbourne', country: 'Australia', flag: '🇦🇺', color: 'from-amber-500 to-amber-700' },
   { name: 'University of Oxford', country: 'United Kingdom', flag: '🇬🇧', color: 'from-indigo-500 to-indigo-700' },
-  { name: 'Trinity College Dublin', country: 'Ireland', flag: '🇮🇪', color: 'from-green-500 to-green-700' },
+  { name: 'Trinity College Dublin', country: 'Ireland', flag: '🇮🇪', color: 'from-green-600 to-green-800' },
   { name: 'University of Auckland', country: 'New Zealand', flag: '🇳🇿', color: 'from-teal-500 to-teal-700' },
 ];
 
 const stats = [
-  { value: '8+', label: 'Countries', color: 'text-blue-600' },
-  { value: '15+', label: 'Data Points', color: 'text-emerald-600' },
-  { value: '100%', label: 'Free to Use', color: 'text-purple-600' },
-  { value: '24/7', label: 'Always Available', color: 'text-orange-600' },
+  { value: '8+', label: 'Countries', color: 'text-emerald-600' },
+  { value: '15+', label: 'Data Points', color: 'text-green-600' },
+  { value: '100%', label: 'Free to Use', color: 'text-teal-600' },
+  { value: '24/7', label: 'Always Available', color: 'text-emerald-700' },
 ];
 
 export default function Home() {
@@ -47,24 +47,24 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50" />
 
         {/* Decorative circles */}
-        <div className="absolute top-20 right-20 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-20 w-80 h-80 bg-indigo-200/30 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-20 w-96 h-96 bg-emerald-200/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 left-20 w-80 h-80 bg-green-200/30 rounded-full blur-3xl" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left content */}
             <div>
-              <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
+              <div className="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <span className="w-2 h-2 bg-emerald-600 rounded-full animate-pulse" />
                 Trusted by 10,000+ students worldwide
               </div>
 
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
                 Your Dream{' '}
-                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
                   Study Abroad
                 </span>{' '}
                 Journey Starts Here
@@ -77,13 +77,13 @@ export default function Home() {
               <div className="flex flex-wrap gap-4">
                 <Link
                   href="/explore?subcategory=masters"
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:shadow-blue-500/25 transition-all duration-300 hover:-translate-y-1 text-lg"
+                  className="bg-gradient-to-r from-emerald-500 to-green-600 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:-translate-y-1 text-lg"
                 >
                   Explore Masters Programs
                 </Link>
                 <Link
                   href="/compare"
-                  className="bg-white text-slate-700 px-8 py-4 rounded-full font-semibold border border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 text-lg"
+                  className="bg-white text-slate-700 px-8 py-4 rounded-full font-semibold border border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 text-lg"
                 >
                   Compare Countries
                 </Link>
@@ -109,7 +109,7 @@ export default function Home() {
                   <div className="text-4xl mb-3">💼</div>
                   <h3 className="font-bold text-slate-900 mb-1">Work While Studying</h3>
                   <p className="text-sm text-slate-500">Up to 20 hrs/week</p>
-                  <div className="mt-3 flex items-center gap-1 text-blue-600 text-sm font-medium">
+                  <div className="mt-3 flex items-center gap-1 text-green-600 text-sm font-medium">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                     Earn while you learn
                   </div>
@@ -120,7 +120,7 @@ export default function Home() {
                   <div className="text-4xl mb-3">🏛️</div>
                   <h3 className="font-bold text-slate-900 mb-1">PR Pathway</h3>
                   <p className="text-sm text-slate-500">Get permanent residency</p>
-                  <div className="mt-3 flex items-center gap-1 text-purple-600 text-sm font-medium">
+                  <div className="mt-3 flex items-center gap-1 text-teal-600 text-sm font-medium">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                     1-5 years to PR
                   </div>
@@ -131,7 +131,7 @@ export default function Home() {
                   <div className="text-4xl mb-3">👨‍👩‍👧</div>
                   <h3 className="font-bold text-slate-900 mb-1">Bring Your Spouse</h3>
                   <p className="text-sm text-slate-500">Family reunification</p>
-                  <div className="mt-3 flex items-center gap-1 text-rose-600 text-sm font-medium">
+                  <div className="mt-3 flex items-center gap-1 text-emerald-700 text-sm font-medium">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                     Most countries allow
                   </div>
@@ -163,7 +163,7 @@ export default function Home() {
       <section className="py-20 bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-2">
+            <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wider mb-2">
               Why AbroadDreams
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
@@ -198,7 +198,7 @@ export default function Home() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-2">
+            <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wider mb-2">
               Top Universities
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
@@ -241,7 +241,7 @@ export default function Home() {
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-2">
+            <p className="text-sm font-semibold text-emerald-600 uppercase tracking-wider mb-2">
               Simple Process
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
@@ -271,10 +271,10 @@ export default function Home() {
               },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl text-2xl font-bold mb-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl text-2xl font-bold mb-4">
                   {item.icon}
                 </div>
-                <div className="text-sm font-bold text-blue-600 mb-2">Step {item.step}</div>
+                <div className="text-sm font-bold text-emerald-600 mb-2">Step {item.step}</div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">{item.title}</h3>
                 <p className="text-slate-600">{item.description}</p>
               </div>
@@ -284,7 +284,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 bg-gradient-to-br from-blue-600 to-indigo-700 text-white relative overflow-hidden">
+      <section className="py-20 bg-gradient-to-br from-emerald-600 to-green-700 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
 
@@ -298,7 +298,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="/explore?subcategory=masters"
-              className="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-lg"
+              className="bg-white text-emerald-600 px-8 py-4 rounded-full font-semibold hover:shadow-xl transition-all duration-300 hover:-translate-y-1 text-lg"
             >
               Explore Now
             </Link>

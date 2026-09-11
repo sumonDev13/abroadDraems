@@ -20,7 +20,7 @@ export default function FlagCarousel() {
   return (
     <section className="py-12 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
-        <p className="text-center text-sm font-semibold text-blue-600 uppercase tracking-wider mb-2">
+        <p className="text-center text-sm font-semibold text-emerald-600 uppercase tracking-wider mb-2">
           Study Destinations
         </p>
         <h2 className="text-2xl font-bold text-slate-900 text-center">
@@ -42,7 +42,7 @@ export default function FlagCarousel() {
               href={`/country/${country.id}`}
               className="flex-shrink-0 group"
             >
-              <div className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-slate-50 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 transition-all duration-300 hover:shadow-md hover:-translate-y-1 min-w-[140px]">
+              <div               className="flex flex-col items-center gap-3 px-6 py-4 rounded-2xl bg-slate-50 hover:bg-emerald-50 border border-slate-100 hover:border-emerald-200 transition-all duration-300 hover:shadow-md hover:-translate-y-1 min-w-[140px]">
                 <span className="text-5xl group-hover:scale-110 transition-transform duration-300">
                   {country.flag}
                 </span>
