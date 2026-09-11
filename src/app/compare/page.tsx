@@ -1,16 +1,17 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import countries from '@/data/countries.json';
-import visaPrograms from '@/data/visaPrograms.json';
+import { supabase, type Country, type VisaProgram } from '@/lib/supabase';
 
 const categoryLabels: Record<string, string> = {
   student_masters: 'Student Visa (Masters)',
   skilled_worker: 'Skilled Worker Visa',
   job_seeker: 'Job Seeker Visa',
 };
+
+type ProgramWithCountry = VisaProgram & { countries: Country };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ComparisonField = {
@@ -21,19 +22,19 @@ type ComparisonField = {
 };
 
 const comparisonFields: ComparisonField[] = [
-  { key: 'spouseCanAccompany', label: 'Spouse Can Accompany', format: (v: boolean) => v ? '✓ Yes' : '✗ No', highlight: (v: boolean) => v ? 'text-emerald-600' : 'text-red-600' },
-  { key: 'spouseJoinDelay', label: 'Spouse Join Delay' },
-  { key: 'spouseWorkRights', label: 'Spouse Work Rights' },
-  { key: 'workPermitHours', label: 'Work Permit Hours' },
-  { key: 'postStudyWorkVisa', label: 'Post-Study Work Visa' },
-  { key: 'financialProofType', label: 'Financial Proof Type' },
-  { key: 'financialProofAmount', label: 'Financial Proof Amount' },
-  { key: 'tuitionFeeRange', label: 'Tuition Fee Range', format: (_v: unknown, program: { tuitionFeeMin: number; tuitionFeeMax: number; tuitionCurrency: string }) =>
-    program.tuitionFeeMin === 0 && program.tuitionFeeMax === 0 ? 'Free' : `${program.tuitionCurrency} ${program.tuitionFeeMin.toLocaleString()} - ${program.tuitionFeeMax.toLocaleString()}` },
-  { key: 'prPathway', label: 'PR Pathway', format: (v: boolean, program: { timeToPr: string }) => v ? `✓ ${program.timeToPr}` : '✗ Not available', highlight: (v: boolean) => v ? 'text-emerald-600' : 'text-slate-500' },
-  { key: 'processingTime', label: 'Processing Time' },
-  { key: 'languageRequirement', label: 'Language Requirement' },
-  { key: 'costOfLivingIndex', label: 'Cost of Living Index', format: (v: number) => `${v}/100` },
+  { key: 'spouse_can_accompany', label: 'Spouse Can Accompany', format: (v: boolean) => v ? '✓ Yes' : '✗ No', highlight: (v: boolean) => v ? 'text-emerald-600' : 'text-red-600' },
+  { key: 'spouse_join_delay', label: 'Spouse Join Delay' },
+  { key: 'spouse_work_rights', label: 'Spouse Work Rights' },
+  { key: 'work_permit_hours', label: 'Work Permit Hours' },
+  { key: 'post_study_work_visa', label: 'Post-Study Work Visa' },
+  { key: 'financial_proof_type', label: 'Financial Proof Type' },
+  { key: 'financial_proof_amount', label: 'Financial Proof Amount' },
+  { key: 'tuition_fee_range', label: 'Tuition Fee Range', format: (_v: unknown, program: ProgramWithCountry) =>
+    !program.tuition_fee_min && !program.tuition_fee_max ? 'Free' : `${program.tuition_currency} ${(program.tuition_fee_min || 0).toLocaleString()} - ${(program.tuition_fee_max || 0).toLocaleString()}` },
+  { key: 'pr_pathway', label: 'PR Pathway', format: (v: boolean, program: ProgramWithCountry) => v ? `✓ ${program.time_to_pr}` : '✗ Not available', highlight: (v: boolean) => v ? 'text-emerald-600' : 'text-slate-500' },
+  { key: 'processing_time', label: 'Processing Time' },
+  { key: 'language_requirement', label: 'Language Requirement' },
+  { key: 'cost_of_living_index', label: 'Cost of Living Index', format: (v: number) => `${v}/100` },
 ];
 
 function CompareContent() {
@@ -41,16 +42,53 @@ function CompareContent() {
   const initialIds = searchParams.get('ids')?.split(',') || [];
   const [selectedCategory, setSelectedCategory] = useState<string>('student_masters');
   const [selectedIds, setSelectedIds] = useState<string[]>(initialIds);
+  const [availablePrograms, setAvailablePrograms] = useState<ProgramWithCountry[]>([]);
+  const [selectedPrograms, setSelectedPrograms] = useState<ProgramWithCountry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const availablePrograms = useMemo(() => {
-    return visaPrograms.filter((p) => p.category === selectedCategory);
+  useEffect(() => {
+    async function fetchPrograms() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('visa_programs')
+        .select('*, countries(*)')
+        .eq('category', selectedCategory);
+
+      if (error) {
+        console.error('Error fetching programs:', error);
+        setLoading(false);
+        return;
+      }
+
+      setAvailablePrograms((data as ProgramWithCountry[]) || []);
+      setLoading(false);
+    }
+
+    fetchPrograms();
   }, [selectedCategory]);
 
-  const selectedPrograms = useMemo(() => {
-    return visaPrograms.filter((p) => selectedIds.includes(p.id));
-  }, [selectedIds]);
+  useEffect(() => {
+    async function fetchSelected() {
+      if (selectedIds.length === 0) {
+        setSelectedPrograms([]);
+        return;
+      }
 
-  const getCountry = (countryId: string) => countries.find((c) => c.id === countryId);
+      const { data, error } = await supabase
+        .from('visa_programs')
+        .select('*, countries(*)')
+        .in('id', selectedIds);
+
+      if (error) {
+        console.error('Error fetching selected programs:', error);
+        return;
+      }
+
+      setSelectedPrograms((data as ProgramWithCountry[]) || []);
+    }
+
+    fetchSelected();
+  }, [selectedIds]);
 
   const toggleSelection = (programId: string) => {
     setSelectedIds((prev) =>
@@ -86,30 +124,34 @@ function CompareContent() {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
         <h2 className="font-bold text-slate-900 mb-4">Select countries to compare (max 4)</h2>
         <div className="flex flex-wrap gap-3">
-          {availablePrograms.map((program) => {
-            const country = getCountry(program.countryId);
-            if (!country) return null;
-            const isSelected = selectedIds.includes(program.id);
+          {loading ? (
+            <div className="text-slate-500">Loading countries...</div>
+          ) : (
+            availablePrograms.map((program) => {
+              const country = program.countries;
+              if (!country) return null;
+              const isSelected = selectedIds.includes(program.id);
 
-            return (
-              <button
-                key={program.id}
-                onClick={() => {
-                  if (!isSelected && selectedIds.length >= 4) return;
-                  toggleSelection(program.id);
-                }}
-                disabled={!isSelected && selectedIds.length >= 4}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                  isSelected
-                    ? 'bg-blue-600 text-white ring-2 ring-blue-300'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed'
-                }`}
-              >
-                <span>{country.flag}</span>
-                <span>{country.name}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={program.id}
+                  onClick={() => {
+                    if (!isSelected && selectedIds.length >= 4) return;
+                    toggleSelection(program.id);
+                  }}
+                  disabled={!isSelected && selectedIds.length >= 4}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                    isSelected
+                      ? 'bg-blue-600 text-white ring-2 ring-blue-300'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed'
+                  }`}
+                >
+                  <span>{country.flag}</span>
+                  <span>{country.name}</span>
+                </button>
+              );
+            })
+          )}
         </div>
       </div>
 
@@ -124,7 +166,7 @@ function CompareContent() {
                     Feature
                   </th>
                   {selectedPrograms.map((program) => {
-                    const country = getCountry(program.countryId);
+                    const country = program.countries;
                     return (
                       <th key={program.id} className="text-center py-4 px-6 min-w-[200px]">
                         <div className="flex flex-col items-center">
@@ -144,6 +186,18 @@ function CompareContent() {
                   >
                     <td className="py-4 px-6 font-medium text-slate-700">{field.label}</td>
                     {selectedPrograms.map((program) => {
+                      // Handle special computed fields
+                      if (field.key === 'tuition_fee_range') {
+                        const displayValue = field.format
+                          ? field.format(null, program)
+                          : 'N/A';
+                        return (
+                          <td key={program.id} className="py-4 px-6 text-center text-slate-900">
+                            {displayValue}
+                          </td>
+                        );
+                      }
+
                       const value = (program as Record<string, unknown>)[field.key];
                       let displayValue = String(value ?? 'N/A');
                       let highlightClass = '';

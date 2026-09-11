@@ -1,10 +1,9 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import countries from '@/data/countries.json';
-import visaPrograms from '@/data/visaPrograms.json';
+import { supabase, type Country, type VisaProgram } from '@/lib/supabase';
 
 const categoryLabels: Record<string, string> = {
   student_masters: 'Student Visa (Masters)',
@@ -15,10 +14,11 @@ const categoryLabels: Record<string, string> = {
 interface Filters {
   spouseCanAccompany: boolean | null;
   prPathway: boolean | null;
-  maxTuition: number;
   region: string;
   search: string;
 }
+
+type ProgramWithCountry = VisaProgram & { countries: Country };
 
 function ExploreContent() {
   const searchParams = useSearchParams();
@@ -27,54 +27,66 @@ function ExploreContent() {
   const [filters, setFilters] = useState<Filters>({
     spouseCanAccompany: null,
     prPathway: null,
-    maxTuition: 100000,
     region: '',
     search: '',
   });
   const [sortBy, setSortBy] = useState<string>('name');
   const [compareList, setCompareList] = useState<string[]>([]);
+  const [programs, setPrograms] = useState<ProgramWithCountry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredPrograms = useMemo(() => {
-    let programs = visaPrograms.filter((p) => p.category === selectedCategory);
+  useEffect(() => {
+    async function fetchPrograms() {
+      setLoading(true);
+      let query = supabase
+        .from('visa_programs')
+        .select('*, countries(*)')
+        .eq('category', selectedCategory);
 
-    if (filters.spouseCanAccompany !== null) {
-      programs = programs.filter((p) => p.spouseCanAccompany === filters.spouseCanAccompany);
-    }
-    if (filters.prPathway !== null) {
-      programs = programs.filter((p) => p.prPathway === filters.prPathway);
-    }
-    if (filters.region) {
-      const countryIds = countries
-        .filter((c) => c.region === filters.region)
-        .map((c) => c.id);
-      programs = programs.filter((p) => countryIds.includes(p.countryId));
-    }
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      programs = programs.filter((p) => {
-        const country = countries.find((c) => c.id === p.countryId);
-        return (
-          country?.name.toLowerCase().includes(searchLower) ||
-          p.tuitionFeeMin.toString().includes(searchLower) ||
-          p.workPermitHours.toLowerCase().includes(searchLower)
+      if (filters.spouseCanAccompany !== null) {
+        query = query.eq('spouse_can_accompany', filters.spouseCanAccompany);
+      }
+      if (filters.prPathway !== null) {
+        query = query.eq('pr_pathway', filters.prPathway);
+      }
+      if (filters.region) {
+        query = query.eq('countries.region', filters.region);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching programs:', error);
+        setLoading(false);
+        return;
+      }
+
+      let filtered = (data as ProgramWithCountry[]) || [];
+
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filtered = filtered.filter((p) =>
+          p.countries?.name.toLowerCase().includes(searchLower) ||
+          p.work_permit_hours?.toLowerCase().includes(searchLower)
         );
-      });
+      }
+
+      // Sort
+      if (sortBy === 'name') {
+        filtered.sort((a, b) =>
+          (a.countries?.name || '').localeCompare(b.countries?.name || '')
+        );
+      } else if (sortBy === 'tuition-low') {
+        filtered.sort((a, b) => (a.tuition_fee_min || 0) - (b.tuition_fee_min || 0));
+      } else if (sortBy === 'tuition-high') {
+        filtered.sort((a, b) => (b.tuition_fee_max || 0) - (a.tuition_fee_max || 0));
+      }
+
+      setPrograms(filtered);
+      setLoading(false);
     }
 
-    // Sort
-    if (sortBy === 'name') {
-      programs.sort((a, b) => {
-        const countryA = countries.find((c) => c.id === a.countryId)?.name || '';
-        const countryB = countries.find((c) => c.id === b.countryId)?.name || '';
-        return countryA.localeCompare(countryB);
-      });
-    } else if (sortBy === 'tuition-low') {
-      programs.sort((a, b) => a.tuitionFeeMin - b.tuitionFeeMin);
-    } else if (sortBy === 'tuition-high') {
-      programs.sort((a, b) => b.tuitionFeeMax - a.tuitionFeeMax);
-    }
-
-    return programs;
+    fetchPrograms();
   }, [selectedCategory, filters, sortBy]);
 
   const toggleCompare = (programId: string) => {
@@ -82,8 +94,6 @@ function ExploreContent() {
       prev.includes(programId) ? prev.filter((id) => id !== programId) : [...prev, programId]
     );
   };
-
-  const getCountry = (countryId: string) => countries.find((c) => c.id === countryId);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -199,7 +209,7 @@ function ExploreContent() {
         <div className="lg:col-span-3">
           <div className="flex items-center justify-between mb-4">
             <p className="text-slate-600">
-              {filteredPrograms.length} countries found
+              {loading ? 'Loading...' : `${programs.length} countries found`}
             </p>
             {compareList.length > 0 && (
               <button
@@ -211,89 +221,103 @@ function ExploreContent() {
             )}
           </div>
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filteredPrograms.map((program) => {
-              const country = getCountry(program.countryId);
-              if (!country) return null;
-              const isComparing = compareList.includes(program.id);
+          {loading ? (
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 animate-pulse">
+                  <div className="h-8 bg-slate-200 rounded w-1/3 mb-4"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-slate-200 rounded"></div>
+                    <div className="h-4 bg-slate-200 rounded w-2/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {programs.map((program) => {
+                const country = program.countries;
+                if (!country) return null;
+                const isComparing = compareList.includes(program.id);
 
-              return (
-                <div
-                  key={program.id}
-                  className={`bg-white rounded-xl shadow-sm border-2 p-5 transition-all hover:shadow-md ${
-                    isComparing ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-200'
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-3xl">{country.flag}</span>
-                      <div>
-                        <h3 className="font-bold text-slate-900">{country.name}</h3>
-                        <span className="text-xs text-slate-500">{country.region}</span>
+                return (
+                  <div
+                    key={program.id}
+                    className={`bg-white rounded-xl shadow-sm border-2 p-5 transition-all hover:shadow-md ${
+                      isComparing ? 'border-blue-500 ring-2 ring-blue-200' : 'border-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <span className="text-3xl">{country.flag}</span>
+                        <div>
+                          <h3 className="font-bold text-slate-900">{country.name}</h3>
+                          <span className="text-xs text-slate-500">{country.region}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleCompare(program.id)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          isComparing
+                            ? 'bg-blue-100 text-blue-600'
+                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                        }`}
+                        title="Add to compare"
+                      >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Tuition Fee</span>
+                        <span className="font-medium text-slate-900">
+                          {(!program.tuition_fee_min && !program.tuition_fee_max)
+                            ? 'Free'
+                            : `${program.tuition_currency} ${(program.tuition_fee_min || 0).toLocaleString()} - ${(program.tuition_fee_max || 0).toLocaleString()}`}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Work Permit</span>
+                        <span className="font-medium text-slate-900 text-right text-xs">
+                          {program.work_permit_hours}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Spouse</span>
+                        <span className={`font-medium ${program.spouse_can_accompany ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {program.spouse_can_accompany ? '✓ Yes' : '✗ No'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">PR Pathway</span>
+                        <span className={`font-medium ${program.pr_pathway ? 'text-emerald-600' : 'text-slate-500'}`}>
+                          {program.pr_pathway ? `✓ ${program.time_to_pr}` : '✗ Not available'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Post-Study Work</span>
+                        <span className="font-medium text-slate-900 text-right text-xs">
+                          {program.post_study_work_visa}
+                        </span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => toggleCompare(program.id)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        isComparing
-                          ? 'bg-blue-100 text-blue-600'
-                          : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                      }`}
-                      title="Add to compare"
+
+                    <Link
+                      href={`/country/${program.id}`}
+                      className="mt-4 block w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors text-sm"
                     >
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </button>
+                      View Details
+                    </Link>
                   </div>
+                );
+              })}
+            </div>
+          )}
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Tuition Fee</span>
-                      <span className="font-medium text-slate-900">
-                        {program.tuitionFeeMin === 0 && program.tuitionFeeMax === 0
-                          ? 'Free'
-                          : `${program.tuitionCurrency} ${program.tuitionFeeMin.toLocaleString()} - ${program.tuitionFeeMax.toLocaleString()}`}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Work Permit</span>
-                      <span className="font-medium text-slate-900 text-right text-xs">
-                        {program.workPermitHours}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Spouse</span>
-                      <span className={`font-medium ${program.spouseCanAccompany ? 'text-emerald-600' : 'text-red-600'}`}>
-                        {program.spouseCanAccompany ? '✓ Yes' : '✗ No'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">PR Pathway</span>
-                      <span className={`font-medium ${program.prPathway ? 'text-emerald-600' : 'text-slate-500'}`}>
-                        {program.prPathway ? `✓ ${program.timeToPr}` : '✗ Not available'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Post-Study Work</span>
-                      <span className="font-medium text-slate-900 text-right text-xs">
-                        {program.postStudyWorkVisa}
-                      </span>
-                    </div>
-                  </div>
-
-                  <Link
-                    href={`/country/${program.id}`}
-                    className="mt-4 block w-full text-center py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition-colors text-sm"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              );
-            })}
-          </div>
-
-          {filteredPrograms.length === 0 && (
+          {!loading && programs.length === 0 && (
             <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
               <p className="text-slate-500 text-lg">No countries match your filters</p>
               <button
@@ -301,7 +325,6 @@ function ExploreContent() {
                   setFilters({
                     spouseCanAccompany: null,
                     prPathway: null,
-                    maxTuition: 100000,
                     region: '',
                     search: '',
                   })

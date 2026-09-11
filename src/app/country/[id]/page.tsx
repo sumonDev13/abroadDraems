@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import countries from '@/data/countries.json';
-import visaPrograms from '@/data/visaPrograms.json';
+import { supabase, type Country, type VisaProgram } from '@/lib/supabase';
 
 const categoryLabels: Record<string, string> = {
   student_masters: 'Student Visa (Masters)',
@@ -9,22 +8,33 @@ const categoryLabels: Record<string, string> = {
   job_seeker: 'Job Seeker Visa',
 };
 
-export function generateStaticParams() {
-  return visaPrograms.map((program) => ({
-    id: program.id,
-  }));
+type ProgramWithCountry = VisaProgram & { countries: Country };
+
+// Generate static params for all visa programs
+export async function generateStaticParams() {
+  const { data } = await supabase.from('visa_programs').select('id');
+  return (data || []).map((p) => ({ id: p.id }));
 }
+
+// Allow dynamic params that aren't pre-rendered
+export const dynamicParams = true;
 
 export default async function CountryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const program = visaPrograms.find((p) => p.id === id);
-  
-  if (!program) {
+
+  const { data: program, error } = await supabase
+    .from('visa_programs')
+    .select('*, countries(*)')
+    .eq('id', id)
+    .single();
+
+  if (error || !program) {
     notFound();
   }
 
-  const country = countries.find((c) => c.id === program.countryId);
-  
+  const typedProgram = program as ProgramWithCountry;
+  const country = typedProgram.countries;
+
   if (!country) {
     notFound();
   }
@@ -32,7 +42,7 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-slate-200">
+      <header className="bg-white shadow-sm border border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Link href="/" className="text-2xl font-bold text-slate-900">
@@ -52,7 +62,7 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
             <span className="text-6xl">{country.flag}</span>
             <div>
               <h1 className="text-3xl font-bold text-slate-900">{country.name}</h1>
-              <p className="text-slate-600">{categoryLabels[program.category]}</p>
+              <p className="text-slate-600">{categoryLabels[typedProgram.category]}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-4">
@@ -62,7 +72,7 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
             <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm">
               {country.currency}
             </span>
-            {program.prPathway && (
+            {typedProgram.pr_pathway && (
               <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm">
                 PR Available
               </span>
@@ -79,17 +89,17 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Can Accompany</span>
-                <span className={`font-semibold ${program.spouseCanAccompany ? 'text-emerald-600' : 'text-red-600'}`}>
-                  {program.spouseCanAccompany ? 'Yes' : 'No'}
+                <span className={`font-semibold ${typedProgram.spouse_can_accompany ? 'text-emerald-600' : 'text-red-600'}`}>
+                  {typedProgram.spouse_can_accompany ? 'Yes' : 'No'}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Join Delay</span>
-                <span className="font-semibold text-slate-900">{program.spouseJoinDelay}</span>
+                <span className="font-semibold text-slate-900">{typedProgram.spouse_join_delay}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-slate-600">Work Rights</span>
-                <span className="font-semibold text-slate-900 text-right text-sm">{program.spouseWorkRights}</span>
+                <span className="font-semibold text-slate-900 text-right text-sm">{typedProgram.spouse_work_rights}</span>
               </div>
             </div>
           </div>
@@ -102,15 +112,15 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Work Permit</span>
-                <span className="font-semibold text-slate-900 text-right text-sm">{program.workPermitHours}</span>
+                <span className="font-semibold text-slate-900 text-right text-sm">{typedProgram.work_permit_hours}</span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Post-Study Work</span>
-                <span className="font-semibold text-slate-900 text-right text-sm">{program.postStudyWorkVisa}</span>
+                <span className="font-semibold text-slate-900 text-right text-sm">{typedProgram.post_study_work_visa}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-slate-600">Language Requirement</span>
-                <span className="font-semibold text-slate-900 text-right text-sm">{program.languageRequirement}</span>
+                <span className="font-semibold text-slate-900 text-right text-sm">{typedProgram.language_requirement}</span>
               </div>
             </div>
           </div>
@@ -123,18 +133,18 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Proof Type</span>
-                <span className="font-semibold text-slate-900">{program.financialProofType}</span>
+                <span className="font-semibold text-slate-900">{typedProgram.financial_proof_type}</span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Amount Required</span>
-                <span className="font-semibold text-slate-900">{program.financialProofAmount}</span>
+                <span className="font-semibold text-slate-900">{typedProgram.financial_proof_amount}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-slate-600">Tuition Fee Range</span>
                 <span className="font-semibold text-slate-900">
-                  {program.tuitionFeeMin === 0 && program.tuitionFeeMax === 0
+                  {!typedProgram.tuition_fee_min && !typedProgram.tuition_fee_max
                     ? 'Free'
-                    : `${program.tuitionCurrency} ${program.tuitionFeeMin.toLocaleString()} - ${program.tuitionFeeMax.toLocaleString()}`}
+                    : `${typedProgram.tuition_currency} ${(typedProgram.tuition_fee_min || 0).toLocaleString()} - ${(typedProgram.tuition_fee_max || 0).toLocaleString()}`}
                 </span>
               </div>
             </div>
@@ -148,17 +158,17 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
             <div className="space-y-3">
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">PR Pathway</span>
-                <span className={`font-semibold ${program.prPathway ? 'text-emerald-600' : 'text-slate-500'}`}>
-                  {program.prPathway ? `Yes - ${program.timeToPr}` : 'Not available'}
+                <span className={`font-semibold ${typedProgram.pr_pathway ? 'text-emerald-600' : 'text-slate-500'}`}>
+                  {typedProgram.pr_pathway ? `Yes - ${typedProgram.time_to_pr}` : 'Not available'}
                 </span>
               </div>
               <div className="flex justify-between py-2 border-b border-slate-100">
                 <span className="text-slate-600">Processing Time</span>
-                <span className="font-semibold text-slate-900">{program.processingTime}</span>
+                <span className="font-semibold text-slate-900">{typedProgram.processing_time}</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-slate-600">Cost of Living Index</span>
-                <span className="font-semibold text-slate-900">{program.costOfLivingIndex}/100</span>
+                <span className="font-semibold text-slate-900">{typedProgram.cost_of_living_index}/100</span>
               </div>
             </div>
           </div>
@@ -169,10 +179,10 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <p className="text-sm text-slate-500">
-                Last Updated: {program.lastUpdated}
+                Last Updated: {typedProgram.last_updated}
               </p>
               <a
-                href={program.sourceLink}
+                href={typedProgram.source_link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:text-blue-700 text-sm font-medium"
@@ -181,7 +191,7 @@ export default async function CountryDetailPage({ params }: { params: Promise<{ 
               </a>
             </div>
             <Link
-              href={`/explore?category=${program.category}`}
+              href={`/explore?category=${typedProgram.category}`}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
             >
               Compare with Other Countries
